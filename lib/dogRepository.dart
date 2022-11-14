@@ -5,10 +5,19 @@ import 'package:sqflite/sqflite.dart';
 import 'dog.dart';
 
 class DogRepository {
-  late Future<Database>? database;
 
-  Future<void> createDatabase() async {
-    database = openDatabase(
+  DogRepository._privateConstructor();
+  static final DogRepository instance = DogRepository._privateConstructor();
+
+  Database? _database;
+  Future<Database> get database async {
+    if(_database != null) return _database!;
+    _database = await _createDatabase();
+    return _database!;
+  }
+
+  _createDatabase() async{
+    return openDatabase(
       join(await getDatabasesPath(), 'doggie_database.db'),
       onCreate: (db, version) {
         return db.execute('CREATE TABLE dogs (id INTEGER PRIMARY KEY, name TEXT, age INTEGER)');
@@ -18,9 +27,8 @@ class DogRepository {
   }
 
   Future<void> insertDog(Dog dog) async {
-    if(database == null) throw Exception('database not created');
-    final db = await database;
-    await db!.insert(
+    final db = await instance.database;
+    await db.insert(
         'dogs',
         dog.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace
@@ -28,9 +36,8 @@ class DogRepository {
   }
 
   Future<List<Dog>> dogs() async {
-    if(database == null) throw Exception('database not created');
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db!.query('dogs');
+    final db = await instance.database;
+    final List<Map<String, dynamic>> maps = await db.query('dogs');
 
     return List.generate(
         maps.length,
@@ -45,9 +52,8 @@ class DogRepository {
   }
 
   Future<void> updateDog(Dog dog) async {
-    if(database == null) throw Exception('database not created');
-    final db = await database;
-    await db!.update(
+    final db = await instance.database;
+    await db.update(
       'dogs',
       dog.toMap(),
       where: 'id = ?',
@@ -56,9 +62,8 @@ class DogRepository {
   }
 
   Future<void> deleteDog(int id) async {
-    if(database == null) throw Exception('database not created');
-    final db = await database;
-    await db!.delete(
+    final db = await instance.database;
+    await db.delete(
         'dogs',
         where: 'id = ?',
         whereArgs: [id]
