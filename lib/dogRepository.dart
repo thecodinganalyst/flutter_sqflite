@@ -26,9 +26,18 @@ class DogRepository {
     );
   }
 
-  Future<void> insertDog(Dog dog) async {
+  Future<int> insertDogMap(Map<String, dynamic> dogMap) async {
     final db = await instance.database;
-    await db.insert(
+    return await db.insert(
+      'dogs',
+      dogMap,
+      conflictAlgorithm: ConflictAlgorithm.replace
+    );
+  }
+
+  Future<int> insertDog(Dog dog) async {
+    final db = await instance.database;
+    return await db.insert(
         'dogs',
         dog.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace
