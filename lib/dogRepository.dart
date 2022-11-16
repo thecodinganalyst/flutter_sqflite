@@ -70,9 +70,9 @@ class DogRepository {
     );
   }
 
-  Future<void> deleteDog(int id) async {
+  Future<int> deleteDog(int id) async {
     final db = await instance.database;
-    await db.delete(
+    return await db.delete(
         'dogs',
         where: 'id = ?',
         whereArgs: [id]

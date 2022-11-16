@@ -26,6 +26,13 @@ class _DogListViewState extends State<DogListView> {
     });
   }
 
+  void deleteItem(int id) async{
+    await dogRepository.deleteDog(id);
+    setState(() {
+      _futureDogList = dogRepository.dogs();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,7 +43,7 @@ class _DogListViewState extends State<DogListView> {
           future: _futureDogList,
           builder: (context, snapshot) {
             if(snapshot.hasData){
-              return DogList(dogList: snapshot.data!);
+              return DogList(dogList: snapshot.data!, deleteItemFn: deleteItem);
             }else if(snapshot.hasError) {
               return Center(
                 child: Text('${snapshot.error}'),
@@ -61,7 +68,8 @@ class _DogListViewState extends State<DogListView> {
 
 class DogList extends StatelessWidget {
   final List<Dog> dogList;
-  const DogList({super.key, required this.dogList});
+  final Function(int) deleteItemFn;
+  const DogList({super.key, required this.dogList, required this.deleteItemFn});
 
   @override
   Widget build(BuildContext context) {
@@ -69,10 +77,17 @@ class DogList extends StatelessWidget {
       itemCount: dogList.length,
       itemBuilder: (context, i) {
         final dog = dogList[i];
-        return ListTile(
-          leading: Text(dog.id.toString()),
-          title: Text(dog.name),
-          trailing: Text('${dog.age.toString()} years old'),
+        return Dismissible(
+          key: Key(dog.id.toString()),
+          child: ListTile(
+            leading: Text(dog.id.toString()),
+            title: Text(dog.name),
+            trailing: Text('${dog.age.toString()} years old'),
+          ),
+          onDismissed: (direction) async {
+            dogList.removeAt(i);
+            deleteItemFn(dog.id);
+          },
         );
       },
     );
