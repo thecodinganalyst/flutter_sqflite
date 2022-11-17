@@ -3,8 +3,8 @@ import 'dogRepository.dart';
 import 'dog.dart';
 
 class DogFormView extends StatelessWidget {
-  Dog? dog;
-  DogFormView({Key? key, Dog? this.dog}) : super(key: key);
+  final Dog? dog;
+  const DogFormView({Key? key, this.dog}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +19,8 @@ class DogFormView extends StatelessWidget {
 
 
 class DogForm extends StatefulWidget {
-  Dog? dog;
-  DogForm({Key? key, Dog? this.dog}) : super(key: key);
+  final Dog? dog;
+  const DogForm({Key? key, this.dog}) : super(key: key);
 
   @override
   State<DogForm> createState() => _DogFormState();
