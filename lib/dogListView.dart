@@ -43,7 +43,7 @@ class _DogListViewState extends State<DogListView> {
           future: _futureDogList,
           builder: (context, snapshot) {
             if(snapshot.hasData){
-              return DogList(dogList: snapshot.data!, deleteItemFn: deleteItem);
+              return DogList(dogList: snapshot.data!, deleteItemFn: deleteItem, refreshListFn: refresh);
             }else if(snapshot.hasError) {
               return Center(
                 child: Text('${snapshot.error}'),
@@ -58,8 +58,7 @@ class _DogListViewState extends State<DogListView> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
-          const dogFormView = DogFormView();
-          Navigator.push(context, MaterialPageRoute(builder: (context) => dogFormView)).then((value) => refresh());
+          Navigator.push(context, MaterialPageRoute(builder: (context) => DogFormView())).then((value) => refresh());
         },
       ),
     );
@@ -69,7 +68,8 @@ class _DogListViewState extends State<DogListView> {
 class DogList extends StatelessWidget {
   final List<Dog> dogList;
   final Function(int) deleteItemFn;
-  const DogList({super.key, required this.dogList, required this.deleteItemFn});
+  final Function refreshListFn;
+  const DogList({super.key, required this.dogList, required this.deleteItemFn, required this.refreshListFn});
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +83,9 @@ class DogList extends StatelessWidget {
             leading: Text(dog.id.toString()),
             title: Text(dog.name),
             trailing: Text('${dog.age.toString()} years old'),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => DogFormView(dog: dog))).then((value) => refreshListFn());
+            },
           ),
           onDismissed: (direction) async {
             dogList.removeAt(i);

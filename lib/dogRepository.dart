@@ -35,15 +35,6 @@ class DogRepository {
     );
   }
 
-  Future<int> insertDog(Dog dog) async {
-    final db = await instance.database;
-    return await db.insert(
-        'dogs',
-        dog.toMap(),
-        conflictAlgorithm: ConflictAlgorithm.replace
-    );
-  }
-
   Future<List<Dog>> dogs() async {
     final db = await instance.database;
     final List<Map<String, dynamic>> maps = await db.query('dogs');
@@ -60,14 +51,18 @@ class DogRepository {
     );
   }
 
-  Future<void> updateDog(Dog dog) async {
+  Future<int> updateDogMap(Map<String, dynamic> dogMap) async {
     final db = await instance.database;
-    await db.update(
+    return db.update(
       'dogs',
-      dog.toMap(),
+      dogMap,
       where: 'id = ?',
-      whereArgs: [dog.id],
+      whereArgs: [dogMap['id']],
     );
+  }
+
+  Future<int> saveDogMap(Map<String, dynamic> dogMap) async {
+    return dogMap['id'] == null ? insertDogMap(dogMap) : updateDogMap(dogMap);
   }
 
   Future<int> deleteDog(int id) async {

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dogRepository.dart';
+import 'dog.dart';
 
 class DogFormView extends StatelessWidget {
-  const DogFormView({Key? key}) : super(key: key);
+  Dog? dog;
+  DogFormView({Key? key, Dog? this.dog}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -10,14 +12,15 @@ class DogFormView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Dog'),
       ),
-      body: const DogForm(),
+      body: DogForm(dog: dog),
     );
   }
 }
 
 
 class DogForm extends StatefulWidget {
-  const DogForm({Key? key}) : super(key: key);
+  Dog? dog;
+  DogForm({Key? key, Dog? this.dog}) : super(key: key);
 
   @override
   State<DogForm> createState() => _DogFormState();
@@ -31,6 +34,9 @@ class _DogFormState extends State<DogForm> {
 
   @override
   Widget build(BuildContext context) {
+    nameController.text = widget.dog != null ? widget.dog!.name : '';
+    ageController.text = widget.dog != null ? widget.dog!.age.toString() : '';
+
     return Form(
       key: _formKey,
       child: Column(
@@ -72,13 +78,14 @@ class _DogFormState extends State<DogForm> {
               onPressed: () {
                 if(_formKey.currentState!.validate()){
                   var dogMap = {
+                    'id': widget.dog?.id,
                     'name': nameController.text,
                     'age': int.parse(ageController.text)
                   };
-                  var id = dogRepository.insertDogMap(dogMap).then(
+                  var id = dogRepository.saveDogMap(dogMap).then(
                     (value) => ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Dog $value created'),
+                          content: const Text('Dog saved'),
                           action: SnackBarAction(
                             label: 'list',
                             onPressed: () { Navigator.pop(context); },
